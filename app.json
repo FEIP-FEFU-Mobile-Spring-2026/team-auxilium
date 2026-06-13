@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "temp-project",
-    "slug": "temp-project",
+    "name": "my-expo-app",
+    "slug": "my-expo-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "package": "com.anonymous.myexpoapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
