@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const CartScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>🛒 Корзина</Text>
+      <Text style={styles.text}>Корзина</Text>
       <Text>Здесь будут ваши товары</Text>
     </View>
   );

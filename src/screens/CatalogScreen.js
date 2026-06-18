@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react
 import { useProducts } from '../context/ProductsContext';
 
 const CatalogScreen = () => {
-  const { categories, selectedCategory, filteredProducts, changeCategory } = useProducts();
+  const { categories, selectedCategoryId, filteredItems, changeCategory } = useProducts();
 
   const renderProduct = ({ item }) => {
     const priceInRubles = (item.priceInKopecks / 100).toFixed(2);
@@ -21,17 +21,17 @@ const CatalogScreen = () => {
       <FlatList
         horizontal
         data={categories}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
               styles.tab,
-              selectedCategory === item && styles.activeTab,
+              selectedCategoryId === item.id && styles.activeTab,
             ]}
-            onPress={() => changeCategory(item)}
+            onPress={() => changeCategory(item.id)}
           >
-            <Text style={selectedCategory === item ? styles.activeTabText : styles.tabText}>
-              {item}
+            <Text style={selectedCategoryId === item.id ? styles.activeTabText : styles.tabText}>
+              {item.name}
             </Text>
           </TouchableOpacity>
         )}
@@ -40,8 +40,8 @@ const CatalogScreen = () => {
       />
 
       <FlatList
-        data={filteredProducts}
-        keyExtractor={(item) => item.id.toString()}
+        data={filteredItems}
+        keyExtractor={(item) => item.id}
         renderItem={renderProduct}
         numColumns={2}
         contentContainerStyle={styles.productList}

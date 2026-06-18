@@ -5,37 +5,40 @@ const ProductsContext = createContext();
 
 export const ProductsProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
-    const { categories: cats = [], products: prods = [] } = data;
+    const { categories: cats = [], items: items = [] } = data;
 
     const newCategory = { id: 'new', name: 'Новинки' };
     const categoryList = [newCategory, ...cats];
     setCategories(categoryList);
 
-    setAllProducts(prods);
+    setAllItems(items);
 
     setSelectedCategoryId('new');
   }, []);
 
   useEffect(() => {
-    if (!allProducts.length) return;
+    if (!allItems.length) {
+      setFilteredItems([]);
+      return;
+    }
 
     if (selectedCategoryId === 'new') {
-      const newItems = allProducts.filter(item =>
+      const newItems = allItems.filter(item =>
         item.tags && item.tags.includes('New')
       );
-      setFilteredProducts(newItems);
+      setFilteredItems(newItems);
     } else {
-      const filtered = allProducts.filter(item =>
+      const filtered = allItems.filter(item =>
         item.categoryId === selectedCategoryId
       );
-      setFilteredProducts(filtered);
+      setFilteredItems(filtered);
     }
-  }, [selectedCategoryId, allProducts]);
+  }, [selectedCategoryId, allItems]);
 
   const changeCategory = (categoryId) => {
     setSelectedCategoryId(categoryId);
@@ -45,7 +48,7 @@ export const ProductsProvider = ({ children }) => {
     <ProductsContext.Provider value={{
       categories,
       selectedCategoryId,
-      filteredProducts,
+      filteredItems,
       changeCategory,
     }}>
       {children}
