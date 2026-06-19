@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useProducts } from '../context/ProductsContext';
+import { Image } from 'expo-image';
 
 const CatalogScreen = () => {
   const { categories, selectedCategoryId, filteredItems, changeCategory } = useProducts();
@@ -9,7 +10,12 @@ const CatalogScreen = () => {
     const priceInRubles = (item.priceInKopecks / 100).toFixed(2);
     return (
       <View style={styles.card}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.image}
+          contentFit="cover"
+          transition={200}
+        />
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>{priceInRubles} ₽</Text>
       </View>
@@ -102,8 +108,8 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 150,
-    resizeMode: 'cover',
     borderRadius: 8,
+    backgroundColor: '#f0f0f0',
   },
   name: {
     fontSize: 14,
