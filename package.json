@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
+    "@gorhom/bottom-sheet": "^5.2.14",
     "@react-navigation/bottom-tabs": "^7.18.2",
     "@react-navigation/native": "^7.3.3",
     "expo": "~56.0.11",
@@ -12,6 +13,8 @@
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
     "react-native": "0.85.3",
+    "react-native-gesture-handler": "~2.31.1",
+    "react-native-reanimated": "4.3.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2"
   },
