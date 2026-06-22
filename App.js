@@ -1,24 +1,11 @@
-import { Text, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { ProductsProvider } from './src/context/ProductsContext';
+import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Auxilium Shop</Text>
-      <Text>Товары, которые помогут</Text>
-    </View>
+    <ProductsProvider>
+      <AppNavigator />
+    </ProductsProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-});

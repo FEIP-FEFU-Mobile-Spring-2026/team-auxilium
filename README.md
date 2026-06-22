@@ -35,8 +35,11 @@ Auxilium Shop - приложение на Android, которое предста
    ```bash
    npx expo install expo-dev-client
    ```
+4. Установить в папку проекта через терминал
+   npx expo install expo-image
+   npx expo install @expo/vector-icons
 
-4. Собрать development‑версию приложения (первый раз)
+5. Собрать development‑версию приложения (первый раз)
    ```bash
    npx expo run:android
    ```
