@@ -1,28 +1,42 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 
 const ProductBottomSheet = ({ product, onClose }) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['50%', '80%'], []);
 
+  const handleClose = useCallback(() => {
+    bottomSheetRef.current?.close();
+    onClose?.();
+  }, [onClose]);
+
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
+
   if (!product) return null;
 
   const priceInRubles = (product.priceInKopecks / 100).toFixed(2);
-
-  const handleClose = () => {
-    bottomSheetRef.current?.close();
-    onClose();
-  };
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
       snapPoints={snapPoints}
-      index={0}
+      index={1}
       enablePanDownToClose
       onClose={onClose}
+      backdropComponent={renderBackdrop}
       backgroundStyle={styles.bottomSheetBackground}
       handleIndicatorStyle={styles.indicator}
     >
@@ -45,19 +59,15 @@ const ProductBottomSheet = ({ product, onClose }) => {
           ))}
         </View>
 
-        {/* Название */}
         <Text style={styles.name}>{product.name}</Text>
-
-        {/* Цена */}
         <Text style={styles.price}>{priceInRubles} ₽</Text>
-
-        {/* Полное описание */}
         <Text style={styles.description}>{product.longDescription}</Text>
       </BottomSheetView>
     </BottomSheet>
   );
 };
 
+// Стили остаются без изменений
 const styles = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: '#fff',
