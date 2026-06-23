@@ -54,7 +54,7 @@ const ProductBottomSheet = ({ product, onClose }) => {
     <BottomSheet
       ref={bottomSheetRef}
       snapPoints={snapPoints}
-      index={0}
+      index={1}
       enablePanDownToClose
       onClose={onClose}
       backdropComponent={renderBackdrop}
