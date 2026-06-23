@@ -1,11 +1,12 @@
-import React, { useRef, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef, useMemo, useCallback, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
 
 const ProductBottomSheet = ({ product, onClose }) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['50%', '80%'], []);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close();
@@ -29,11 +30,31 @@ const ProductBottomSheet = ({ product, onClose }) => {
 
   const priceInRubles = (product.priceInKopecks / 100).toFixed(2);
 
+  const handleSizeSelect = (sizeId) => {
+    setSelectedSize(sizeId === selectedSize ? null : sizeId);
+  };
+
+  const showCharacteristics = () => {
+    const { material, weight, season, countryOfOrigin } = product;
+    const info = `
+Материал: ${material || '—'}
+Вес: ${weight || '—'}
+Сезон: ${season || '—'}
+Страна производства: ${countryOfOrigin || '—'}
+    `.trim();
+    Alert.alert('Характеристики', info);
+  };
+
+  const handleAddToCart = () => {
+    Alert.alert('В корзину', `${product.name} добавлен в корзину`);
+    // Пока без логики
+  };
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
       snapPoints={snapPoints}
-      index={1}
+      index={0}
       enablePanDownToClose
       onClose={onClose}
       backdropComponent={renderBackdrop}
@@ -61,13 +82,56 @@ const ProductBottomSheet = ({ product, onClose }) => {
 
         <Text style={styles.name}>{product.name}</Text>
         <Text style={styles.price}>{priceInRubles} ₽</Text>
-        <Text style={styles.description}>{product.longDescription}</Text>
+        <Text style={styles.description} numberOfLines={3}>
+          {product.longDescription}
+        </Text>
+
+        {/* Размеры */}
+        {product.sizes && product.sizes.length > 0 && (
+          <View style={styles.sizesContainer}>
+            <Text style={styles.sizesLabel}>Размеры:</Text>
+            <FlatList
+              horizontal
+              data={product.sizes}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.sizeItem,
+                    selectedSize === item.id && styles.sizeItemActive,
+                  ]}
+                  onPress={() => handleSizeSelect(item.id)}
+                >
+                  <Text
+                    style={[
+                      styles.sizeText,
+                      selectedSize === item.id && styles.sizeTextActive,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.sizesList}
+            />
+          </View>
+        )}
+
+        {/* Кнопки: В корзину и (i) */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+            <Text style={styles.addToCartText}>В корзину</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoButton} onPress={showCharacteristics}>
+            <Text style={styles.infoButtonText}>ⓘ</Text>
+          </TouchableOpacity>
+        </View>
       </BottomSheetView>
     </BottomSheet>
   );
 };
 
-// Стили остаются без изменений
 const styles = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: '#fff',
@@ -143,7 +207,71 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: '#444',
+    marginTop: 12,
+  },
+  sizesContainer: {
     marginTop: 16,
+  },
+  sizesLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  sizesList: {
+    paddingVertical: 4,
+  },
+  sizeItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  sizeItemActive: {
+    borderColor: '#6200ee',
+    backgroundColor: '#6200ee',
+  },
+  sizeText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  sizeTextActive: {
+    color: '#fff',
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addToCartButton: {
+    flex: 1,
+    backgroundColor: '#6200ee',
+    paddingVertical: 14,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  addToCartText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  infoButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  infoButtonText: {
+    fontSize: 20,
+    color: '#333',
   },
 });
 
