@@ -6,17 +6,35 @@ const STORAGE_KEY = '@cart_items';
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [catalogItems, setCatalogItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadCart();
   }, []);
 
+  useEffect(() => {
+    const loadCatalog = async () => {
+      const { fetchCatalog } = await import('../services/api');
+      try {
+        const data = await fetchCatalog();
+        setCatalogItems(data.items || []);
+      } catch (error) {
+        console.error('Ошибка загрузки каталога:', error);
+      }
+    };
+    loadCatalog();
+  }, []);
+
   const loadCart = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setCartItems(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        const validItems = parsed.filter(
+          (item) => item.productId && item.sizeId && typeof item.quantity === 'number'
+        );
+        setCartItems(validItems);
       }
     } catch (error) {
       console.error('Ошибка загрузки корзины:', error);
@@ -27,11 +45,36 @@ export const CartProvider = ({ children }) => {
 
   const saveCart = async (items) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      const storageData = items.map(({ productId, sizeId, quantity }) => ({
+        productId,
+        sizeId,
+        quantity,
+      }));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
     } catch (error) {
       console.error('Ошибка сохранения корзины:', error);
     }
   };
+
+  const getCartItemsWithDetails = useCallback(() => {
+    if (!catalogItems.length) return [];
+
+    return cartItems
+      .map((cartItem) => {
+        const product = catalogItems.find((p) => p.id === cartItem.productId);
+        if (!product) return null;
+
+        const size = product.sizes?.find((s) => s.id === cartItem.sizeId);
+        if (!size) return null;
+
+        return {
+          ...cartItem,
+          product,
+          size,
+        };
+      })
+      .filter(Boolean);
+  }, [cartItems, catalogItems]);
 
   const addToCart = useCallback((product, sizeId) => {
     setCartItems((prev) => {
@@ -47,17 +90,12 @@ export const CartProvider = ({ children }) => {
           quantity: newItems[existingIndex].quantity + 1,
         };
       } else {
-        const size = product.sizes?.find((s) => s.id === sizeId);
         newItems = [
           ...prev,
           {
             productId: product.id,
             sizeId: sizeId,
-            sizeName: size?.name || '',
             quantity: 1,
-            productName: product.name,
-            priceInKopecks: product.priceInKopecks,
-            imageUrl: product.imageUrl,
           },
         ];
       }
@@ -101,18 +139,24 @@ export const CartProvider = ({ children }) => {
     });
   }, []);
 
-  // Очистка корзины
   const clearCart = useCallback(() => {
     setCartItems([]);
     saveCart([]);
   }, []);
 
-  const totalPriceInKopecks = cartItems.reduce(
-    (sum, item) => sum + item.priceInKopecks * item.quantity,
-    0
-  );
+  const totalPriceInKopecks = useCallback(() => {
+    const itemsWithDetails = getCartItemsWithDetails();
+    return itemsWithDetails.reduce(
+      (sum, item) => sum + item.product.priceInKopecks * item.quantity,
+      0
+    );
+  }, [getCartItemsWithDetails]);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const updateCatalog = useCallback((items) => {
+    setCatalogItems(items);
+  }, []);
 
   return (
     <CartContext.Provider
@@ -123,8 +167,10 @@ export const CartProvider = ({ children }) => {
         removeFromCart,
         updateQuantity,
         clearCart,
-        totalPriceInKopecks,
+        totalPriceInKopecks: totalPriceInKopecks(),
         totalItems,
+        getCartItemsWithDetails,
+        updateCatalog,
       }}
     >
       {children}

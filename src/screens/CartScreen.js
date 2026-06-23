@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductsContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -24,7 +25,17 @@ const CartScreen = () => {
     clearCart,
     totalPriceInKopecks,
     totalItems,
+    getCartItemsWithDetails,
+    updateCatalog,
   } = useCart();
+
+  const { filteredItems } = useProducts(); // получаем товары из каталога
+
+  useEffect(() => {
+    if (filteredItems.length) {
+      updateCatalog(filteredItems);
+    }
+  }, [filteredItems, updateCatalog]);
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -33,6 +44,8 @@ const CartScreen = () => {
     email: '',
     comment: '',
   });
+
+  const cartItemsWithDetails = getCartItemsWithDetails();
 
   const formatPrice = (kopecks) => {
     const rubles = Math.floor(kopecks / 100);
@@ -72,7 +85,7 @@ const CartScreen = () => {
   };
 
   const handleCheckout = () => {
-    if (cartItems.length === 0) return;
+    if (cartItemsWithDetails.length === 0) return;
     if (!validateForm()) return;
 
     setIsCheckingOut(true);
@@ -90,19 +103,19 @@ const CartScreen = () => {
   };
 
   const renderCartItem = ({ item }) => {
-    const itemTotal = item.priceInKopecks * item.quantity;
+    const itemTotal = item.product.priceInKopecks * item.quantity;
     const priceInRubles = formatPrice(itemTotal);
 
     return (
       <View style={styles.cartItem}>
         <Image
-          source={{ uri: item.imageUrl }}
+          source={{ uri: item.product.imageUrl }}
           style={styles.itemImage}
           contentFit="cover"
         />
         <View style={styles.itemInfo}>
-          <Text style={styles.itemName}>{item.productName}</Text>
-          <Text style={styles.itemSize}>Размер: {item.sizeName}</Text>
+          <Text style={styles.itemName}>{item.product.name}</Text>
+          <Text style={styles.itemSize}>Размер: {item.size.name}</Text>
           <Text style={styles.itemPrice}>{priceInRubles}</Text>
         </View>
         <View style={styles.itemActions}>
@@ -149,7 +162,7 @@ const CartScreen = () => {
     );
   }
 
-  if (cartItems.length === 0) {
+  if (cartItemsWithDetails.length === 0) {
     return (
       <SafeAreaView style={styles.emptyContainer}>
         <Ionicons name="cart-outline" size={80} color="#ccc" />
@@ -174,7 +187,7 @@ const CartScreen = () => {
         </View>
 
         <FlatList
-          data={cartItems}
+          data={cartItemsWithDetails}
           keyExtractor={(item) => `${item.productId}_${item.sizeId}`}
           renderItem={renderCartItem}
           scrollEnabled={false}
@@ -232,7 +245,7 @@ const CartScreen = () => {
         <TouchableOpacity
           style={[styles.checkoutButton, isCheckingOut && styles.checkoutButtonDisabled]}
           onPress={handleCheckout}
-          disabled={isCheckingOut || cartItems.length === 0}
+          disabled={isCheckingOut || cartItemsWithDetails.length === 0}
         >
           <Text style={styles.checkoutButtonText}>
             {isCheckingOut ? 'Оформление...' : 'Оформить'}
