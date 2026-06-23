@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   StyleSheet,
   Image,
   Alert,
-  SafeAreaView,
   TextInput,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCart } from '../context/CartContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -35,7 +35,6 @@ const CartScreen = () => {
   });
 
   const formatPrice = (kopecks) => {
-    // Формат: 2 970 ₽ (с пробелом между тысячами)
     const rubles = Math.floor(kopecks / 100);
     return rubles.toLocaleString('ru-RU') + ' ₽';
   };
@@ -64,7 +63,6 @@ const CartScreen = () => {
       Alert.alert('Ошибка', 'Пожалуйста, введите email');
       return false;
     }
-    // Простая проверка email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
       Alert.alert('Ошибка', 'Пожалуйста, введите корректный email');
@@ -78,7 +76,6 @@ const CartScreen = () => {
     if (!validateForm()) return;
 
     setIsCheckingOut(true);
-    // Имитация оформления заказа
     setTimeout(() => {
       clearCart();
       setIsCheckingOut(false);
