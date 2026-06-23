@@ -40,6 +40,8 @@ Auxilium Shop - приложение на Android, которое предста
    npx expo install @expo/vector-icons
    npx expo install @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler
    npm install babel-preset-expo --save-dev
+   npx expo install @react-native-async-storage/async-storage
+   npx expo install react-native-safe-area-context
 
 5. Собрать development‑версию приложения (первый раз)
    ```bash
