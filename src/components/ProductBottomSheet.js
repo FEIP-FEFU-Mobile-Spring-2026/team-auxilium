@@ -46,8 +46,13 @@ const ProductBottomSheet = ({ product, onClose }) => {
   };
 
   const handleAddToCart = () => {
-    Alert.alert('В корзину', `${product.name} добавлен в корзину`);
-    // Пока без логики
+    if (!selectedSize) {
+      Alert.alert('Выберите размер', 'Пожалуйста, выберите размер перед добавлением в корзину');
+      return;
+    }
+    addToCart(product, selectedSize);
+    Alert.alert('Добавлено', `${product.name} добавлен в корзину`);
+    handleClose();
   };
 
   return (
