@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useProducts } from '../context/ProductsContext';
 import { Image } from 'expo-image';
+import ProductBottomSheet from '../components/ProductBottomSheet';
 
 const CatalogScreen = () => {
   const { categories, selectedCategoryId, filteredItems, changeCategory } = useProducts();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleProductPress = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseBottomSheet = () => {
+    setSelectedProduct(null);
+  };
 
   const renderProduct = ({ item }) => {
     const priceInRubles = (item.priceInKopecks / 100).toFixed(2);
     return (
-      <View style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => handleProductPress(item)}
+        activeOpacity={0.7}
+      >
         <Image
           source={{ uri: item.imageUrl }}
           style={styles.image}
@@ -18,7 +32,7 @@ const CatalogScreen = () => {
         />
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>{priceInRubles} ₽</Text>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -52,6 +66,12 @@ const CatalogScreen = () => {
         numColumns={2}
         contentContainerStyle={styles.productList}
         columnWrapperStyle={styles.columnWrapper}
+      />
+
+      {/* Bottom Sheet */}
+      <ProductBottomSheet
+        product={selectedProduct}
+        onClose={handleCloseBottomSheet}
       />
     </View>
   );
